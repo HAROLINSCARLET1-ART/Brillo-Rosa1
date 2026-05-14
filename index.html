@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brillo Rosa Joyería | Andy Felix</title>
+
+  <style>
+    /* --- ESTILOS BASE --- */
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      scroll-behavior:smooth;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body{
+      background:#fff6fb;
+      overflow-x:hidden;
+      color:#333;
+    }
+
+    /* LOADER */
+    #loader{
+      position:fixed;
+      width:100%;
+      height:100vh;
+      background:#ffd6ec;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      z-index:99999;
+      flex-direction:column;
+    }
+
+    .loader-circle{
+      width:80px;
+      height:80px;
+      border:8px solid white;
+      border-top:8px solid hotpink;
+      border-radius:50%;
+      animation:spin 1s linear infinite;
+    }
+
+    @keyframes spin{ 100%{ transform:rotate(360deg); } }
+
+    /* PARTICULAS DE FONDO */
+    .particles{
+      position:fixed;
+      width:100%;
+      height:100%;
+      top:0;
+      left:0;
+      overflow:hidden;
+      z-index:-1;
+    }
+
+    .particles span{
+      position:absolute;
+      bottom:-100px;
+      background:rgba(255,105,180,0.3);
+      border-radius:50%;
+      animation:float 15s linear infinite;
+    }
+
+    @keyframes float{
+      0%{ transform:translateY(0) scale(1); opacity:1; }
+      100%{ transform:translateY(-120vh) scale(0); opacity:0; }
+    }
+
+    /* HEADER */
+    header{
+      position:sticky;
+      top:0;
+      z-index:999;
+      background:rgba(255,182,220,0.75);
+      backdrop-filter:blur(12px);
+      padding:20px;
+      text-align:center;
+      box-shadow:0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    header h1{ color:white; font-size:2.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+    nav{ margin-top:10px; }
+    nav a{ color:white; text-decoration:none; margin:0 15px; font-weight:bold; transition:0.3s; }
+    nav a:hover{ color:#ff1493; }
+
+    /* HERO SECTION */
+    .hero{
+      height:80vh;
+      background:url('https://images.unsplash.com/photo-1617038220319-276d3cfab638?q=80&w=1200&auto=format&fit=crop') center/cover;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      color:white;
+      position:relative;
+    }
+
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset: 0;
+      background:rgba(0,0,0,0.3);
+    }
+
+    .hero-text{ position:relative; z-index:2; animation:fadeUp 1.5s ease; }
+    .hero h2{ font-size:3.5rem; margin-bottom:10px; }
+    .hero p{ font-size:1.3rem; margin-bottom:25px; }
+
+    @keyframes fadeUp{
+      from{ opacity:0; transform:translateY(30px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+
+    .btn{
+      padding:14px 30px;
+      border:none;
+      border-radius:30px;
+      background:linear-gradient(45deg,#ff1493,#ff69b4);
+      color:white;
+      font-size:1.1rem;
+      font-weight: bold;
+      cursor:pointer;
+      transition:0.3s;
+      box-shadow:0 8px 15px rgba(255,20,147,0.3);
+    }
+
+    .btn:hover{ transform:scale(1.05); box-shadow:0 12px 25px rgba(255,20,147,0.5); }
+
+    /* PRODUCTOS */
+    .productos{ padding:80px 20px; text-align:center; }
+    .productos h2{ color:#ff1493; font-size:2.8rem; margin-bottom:40px; }
+    .cards{ display:flex; flex-wrap:wrap; justify-content:center; gap:30px; }
+    .card{
+      width:300px;
+      background:rgba(255,255,255,0.8);
+      backdrop-filter:blur(10px);
+      border-radius:25px;
+      padding-bottom: 20px;
+      overflow:hidden;
+      box-shadow:0 10px 25px rgba(0,0,0,0.05);
+      transition:0.4s;
+    }
+    .card:hover{ transform:translateY(-10px); box-shadow:0 15px 35px rgba(255,20,147,0.2); }
+    .card img{ width:100%; height:280px; object-fit:cover; }
+    .card h3{ margin:15px 0; color:#ff1493; }
+    .precio{ margin-bottom:15px; font-size:1.5rem; color:#ff1493; font-weight:bold; }
+
+    /* CARRITO LATERAL/INFERIOR */
+    .cart-toggle{
+      position:fixed; bottom:25px; right:25px; width:70px; height:70px;
+      border-radius:50%; border:none; background:linear-gradient(45deg,#ff1493,#ff69b4);
+      color:white; font-size:1.8rem; cursor:pointer; z-index:1001;
+      box-shadow:0 10px 25px rgba(255,20,147,0.4); transition:0.3s;
+    }
+
+    .overlay{
+      position:fixed; inset:0; background:rgba(0,0,0,0.5);
+      opacity:0; pointer-events:none; transition:0.4s; z-index:998;
+      backdrop-filter: blur(3px);
+    }
+    .overlay.active{ opacity:1; pointer-events:auto; }
+
+    .carrito{
+      position:fixed; bottom:-100%; left:50%; transform:translateX(-50%);
+      width:100%; max-width:500px; background:rgba(255,255,255,0.95);
+      backdrop-filter:blur(15px); border-radius:30px 30px 0 0; padding:30px; z-index:999;
+      transition:0.6s cubic-bezier(0.175, 0.885, 0.32, 1.1); box-shadow:0 -10px 40px rgba(0,0,0,0.2);
+    }
+    .carrito.active{ bottom:0; }
+    .carrito h2{ color:#ff1493; margin-bottom:15px; border-bottom: 2px solid #fff0f7; padding-bottom: 10px; }
+    
+    .item{ 
+      display:flex; justify-content:space-between; align-items:center; 
+      background:#fff0f7; padding:15px; border-radius:20px; margin:10px 0; 
+      animation:fadeUp 0.3s ease; 
+    }
+    .remove-btn{ 
+      border:none; background:#ff4d6d; color:white; width:35px; height:35px; 
+      border-radius:12px; cursor:pointer; transition: 0.2s;
+    }
+    .remove-btn:hover{ background: #ff1493; }
+
+    .total{ margin:20px 0; text-align:center; font-size:1.4rem; font-weight:bold; color:#ff1493; }
+
+    /* MENSAJES DE ERROR (REEMPLAZO DE ALERTS) */
+    .status-msg {
+      background: #ffe5ed;
+      color: #ff1493;
+      padding: 10px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      text-align: center;
+      margin-bottom: 15px;
+      display: none;
+      font-weight: bold;
+      border: 1px solid #ffb6c1;
+    }
+
+    /* MODAL DE PAGO */
+    .checkout-modal{
+      position:fixed; inset:0; background:rgba(0,0,0,0.6);
+      display:flex; justify-content:center; align-items:center;
+      opacity:0; pointer-events:none; transition:0.3s; z-index:10000;
+      backdrop-filter:blur(10px);
+    }
+    .checkout-modal.active{ opacity:1; pointer-events:auto; }
+    
+    .checkout-box{ 
+      width:90%; max-width:450px; background:white; padding:35px; 
+      border-radius:30px; position:relative; box-shadow:0 20px 50px rgba(0,0,0,0.3);
+    }
+    .checkout-box h2{ color:#ff1493; text-align:center; margin-bottom:20px; }
+    .checkout-box input, .checkout-box select{ 
+      width:100%; padding:15px; margin-bottom:12px; border:none; 
+      border-radius:15px; background:#fff0f7; outline:none; font-size: 1rem;
+    }
+    .cerrar-checkout{ position:absolute; top:20px; right:25px; cursor:pointer; font-size:1.5rem; color:#ff1493; }
+
+    /* MODAL DE GRACIAS */
+    #graciasModal {
+      position:fixed; inset:0; background:rgba(0,0,0,0.8);
+      display:none; justify-content:center; align-items:center; z-index:11000;
+      backdrop-filter: blur(15px);
+    }
+    .gracias-box {
+      background: white; padding: 50px 30px; border-radius: 40px; text-align: center;
+      max-width: 400px; width: 85%; animation: fadeUp 0.5s ease;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- PANTALLA DE CARGA -->
+  <div id="loader">
+    <div class="loader-circle"></div>
+    <h2 style="margin-top:20px;color:white; letter-spacing: 2px;">BRILLO ROSA</h2>
+  </div>
+
+  <div class="particles" id="particles"></div>
+
+  <header>
+    <h1>💎 Brillo Rosa</h1>
+    <nav><a href="#">Inicio</a><a href="#productos">Productos</a></nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-text">
+      <h2>Elegancia en cada detalle ✨</h2>
+      <p>Diseños exclusivos hechos para brillar.</p>
+      <button class="btn" onclick="document.getElementById('productos').scrollIntoView()">Ver Catálogo</button>
+    </div>
+  </section>
+
+  <section class="productos" id="productos">
+    <h2>Nuestras Joyas</h2>
+    <div class="cards">
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1611652022419-a9419f74343d?q=80&w=800&auto=format&fit=crop">
+        <h3>Collar Elegance</h3><div class="precio">$25</div>
+        <button class="btn" onclick="agregar('Collar Elegance', 25)">Añadir 💖</button>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=800&auto=format&fit=crop">
+        <h3>Anillo Princess</h3><div class="precio">$18</div>
+        <button class="btn" onclick="agregar('Anillo Princess', 18)">Añadir 💖</button>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1573408302355-010350593f0b?q=80&w=800&auto=format&fit=crop">
+        <h3>Pendientes Rose</h3><div class="precio">$15</div>
+        <button class="btn" onclick="agregar('Pendientes Rose', 15)">Añadir 💖</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARRITO -->
+  <div class="overlay" id="overlay" onclick="cerrarCarrito()"></div>
+  <button class="cart-toggle" onclick="abrirCarrito()">🛒</button>
+
+  <div class="carrito" id="carrito">
+    <h2>Mi Carrito (<span id="contador">0</span>)</h2>
+    
+    <!-- Mensaje de error si el carrito está vacío -->
+    <div id="errorCarrito" class="status-msg">⚠️ Debes agregar al menos un producto.</div>
+    
+    <div id="lista"></div>
+    <div class="total">Total a pagar: $<span id="total">0</span></div>
+    <button class="btn" style="width:100%" onclick="abrirPago()">Proceder al Pago ✨</button>
+  </div>
+
+  <!-- MODAL DE CHECKOUT -->
+  <div class="checkout-modal" id="checkoutModal">
+    <div class="checkout-box">
+      <span class="cerrar-checkout" onclick="cerrarCheckout()">✖</span>
+      <h2>Finalizar Pedido</h2>
+      
+      <!-- Mensaje de error si faltan campos -->
+      <div id="errorCampos" class="status-msg">⚠️ Por favor, rellena todos los datos.</div>
+      
+      <input type="text" id="nombre" placeholder="Nombre completo">
+      <input type="email" id="correo" placeholder="Correo electrónico">
+      <input type="text" id="direccion" placeholder="Dirección de envío">
+      <input type="text" id="tarjeta" placeholder="Número de tarjeta">
+      <div style="display: flex; gap: 10px;">
+        <input type="text" placeholder="MM/YY">
+        <input type="password" id="clave" placeholder="CVV">
+      </div>
+      <button class="btn" style="width:100%" onclick="procesarPago()">Pagar Ahora 💎</button>
+    </div>
+  </div>
+
+  <!-- MODAL DE ÉXITO -->
+  <div id="graciasModal">
+    <div class="gracias-box">
+      <h1 style="color:#ff1493; font-size: 3rem;">💖</h1>
+      <h2>¡Pago Exitoso!</h2>
+      <p style="margin: 20px 0; color: #666;">Gracias por confiar en Brillo Rosa. Tu pedido llegará muy pronto.</p>
+      <button class="btn" onclick="finalizarTodo()">Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    // Quitar loader
+    window.onload = () => {
+      setTimeout(() => { document.getElementById("loader").style.opacity="0"; 
+      setTimeout(() => document.getElementById("loader").style.display="none", 500);
+      }, 1000);
+    };
+
+    let total = 0;
+    let cantidad = 0;
+
+    function abrirCarrito() {
+      document.getElementById("carrito").classList.add("active");
+      document.getElementById("overlay").classList.add("active");
+      document.getElementById("errorCarrito").style.display = "none";
+    }
+
+    function cerrarCarrito() {
+      document.getElementById("carrito").classList.remove("active");
+      document.getElementById("overlay").classList.remove("active");
+    }
+
+    function agregar(nombre, precio) {
+      const lista = document.getElementById("lista");
+      const item = document.createElement("div");
+      item.className = "item";
+      item.innerHTML = `<div><strong>${nombre}</strong><br>$${precio}</div><button class="remove-btn">✖</button>`;
+      
+      item.querySelector(".remove-btn").onclick = () => {
+        item.remove();
+        total -= precio;
+        cantidad--;
+        actualizarUI();
+      };
+
+      lista.appendChild(item);
+      total += precio;
+      cantidad++;
+      actualizarUI();
+      document.getElementById("errorCarrito").style.display = "none";
+    }
+
+    function actualizarUI() {
+      document.getElementById("total").innerText = total;
+      document.getElementById("contador").innerText = cantidad;
+    }
+
+    function abrirPago() {
+      if (cantidad === 0) {
+        document.getElementById("errorCarrito").style.display = "block";
+        return;
+      }
+      cerrarCarrito();
+      document.getElementById("checkoutModal").classList.add("active");
+    }
+
+    function cerrarCheckout() {
+      document.getElementById("checkoutModal").classList.remove("active");
+      document.getElementById("errorCampos").style.display = "none";
+    }
+
+    function procesarPago() {
+      const campos = ["nombre", "correo", "direccion", "tarjeta", "clave"];
+      let incompleto = false;
+
+      campos.forEach(id => {
+        if (document.getElementById(id).value.trim() === "") incompleto = true;
+      });
+
+      if (incompleto) {
+        document.getElementById("errorCampos").style.display = "block";
+        return;
+      }
+
+      // Si todo está bien, mostramos éxito
+      cerrarCheckout();
+      document.getElementById("graciasModal").style.display = "flex";
+    }
+
+    function finalizarTodo() {
+      // Limpiar datos
+      total = 0;
+      cantidad = 0;
+      document.getElementById("lista").innerHTML = "";
+      actualizarUI();
+      
+      // Limpiar inputs
+      const inputs = document.querySelectorAll(".checkout-box input");
+      inputs.forEach(i => i.value = "");
+
+      document.getElementById("graciasModal").style.display = "none";
+    }
+
+    // Crear partículas decorativas
+    const pContainer = document.getElementById("particles");
+    for(let i=0; i<30; i++) {
+      let s = document.createElement("span");
+      let size = Math.random() * 15 + 5;
+      s.style.width = size + "px";
+      s.style.height = size + "px";
+      s.style.left = Math.random() * 100 + "%";
+      s.style.animationDuration = (Math.random() * 10 + 5) + "s";
+      s.style.animationDelay = Math.random() * 5 + "s";
+      pContainer.appendChild(s);
+    }
+  </script>
+
+</body>
+</html>
